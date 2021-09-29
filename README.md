@@ -1,6 +1,8 @@
 # fakeonion
 An interactive Onion Headline generator using DistilGPT2 and Streamlit.
 
+![A screenshot of the app](docs/img/main_demo_image.PNG)
+
 ## Creating the Environment
 ### Automatic ENV Setup
 I strongly recommend using the `fakeonion.yml` to build the environment.
