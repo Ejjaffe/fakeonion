@@ -29,3 +29,6 @@ streamlit run app.py
  - [ ] Add code to fine-tune the distilGPT2 model, or add a download link for the fine-tuned models I've already created.
  - [ ] Update the app to only use models that exist in the model repo
  - [ ] Some tests to make sure everything is working
+ - [ ] Figure out what's up with `protobuf`???
+ - [ ] Fix the blank-seed bug that produces empty output on an empty string of text. It can generate from blank seeds just fine. Probably needs ~ 800 token candidates for the first three words or so.
+ - [ ] Find a good annealing rule for generating text. 
