@@ -1,0 +1,24 @@
+## What's going on?
+This app is an interactive text generator that tries to imitate headlines found on [The Onion](https://www.theOnion.com/), a satirical news website. The model that generates the text is a smaller version of the infamous [GPT-2](https://en.wikipedi.org/wiki/GPT-2) model, known for being one of the most advanced NLP models in recent history*. The smaller version, known as [Distilled GPT-2 (or DistilGPT2)](https://huggingface.co/distilgpt2) is created by [training on the responses of the larger model](https://arxiv.org/abs/1910.01108), a process known as ["Knowledge Distillation"](https://towardsdatascience.com/knowledge-distillation-simplified-dd4973dbc764).
+
+## Technical Details
+
+### Training Data Sources
+The training data was assembled by me from two different sources. The first was a dataset for distinguishing [Onion headlines from non-satirical but similar headlines](https://raw.githubusercontent.com/lukefeilberg/Onion/master/OnionOrNot.csv) (collected by a subreddit called r/NotTheOnion). The second was from a dataset [intended for distinguishing sarcastic text](https://raw.githubusercontent.com/rishabhmisra/News-Headlines-Dataset-For-Sarcasm-Detection/master/Sarcasm_Headlines_Dataset.json) (Onion headlines) from non-sarcastic text (a random sampling of non-satirical headlines from popular news outlets). 
+
+### Training Data Compilation
+First, all non-Onion headlines were removed from each dataset. Each remaining headline was cast to lowercase for uniformity in token representation. The union of both sets was taken, due to roughly 2000 duplicate headlines. String fuzzy matching was used across datasets to ensure there were few-to-no similar but non-exact duplicates. The resulting dataset is approximately 19K unique headlines.
+
+### Training and Hyperparameters
+The code used to train and generate text was adapted from [this excellent jupyter notebook](https://gist.github.com/mf1024/3df214d2f17f3dcc56450ddf0d5a4cd7) by [Martins Frolovs](https://gist.github.com/mf1024) on GitHub gists. Like Martin, I also used AdamW with a linear schedule and warmup, which worked well. I used a batch size of 32, 5K warmup steps, a maximum sequence lenth of 400 tokens, and a learning rate of 3e-4. Roughly 100 epochs was more than enough to start overfitting, so I recommend you do not do too much training with DistilGPT2.
+
+### Text Generation
+Text generation is relatively simple. 
+ 1. Start with a start token as your output
+ 2. Until the output is very long or the end token is selected as the next token:
+ 2.1 Put the current output into the model and collect the logits for all possible tokens
+ 2.2 Compute the softmax score of each token
+ 2.3 Select tokens with the top-k softmax scores as your token candidates, and use those scores as weights to randomly select the next token.
+ 2.4 Add the selected token to the output.
+
+The right number of "top-k tokens" to consider at each iteration is key to good text generation. Too many token candadates and you have nonsensical text, too few candidates and you start recreating actual Onion headlines. The right number will vary depending on how much the model has been trained. Earlier epochs require fewer candidates (3-5) and later epochs require anywhere from 10-40 token candidates. In addition to that, as the number of tokens grows, restriction of candidates is required to create a coherent headline. Too many tokens and the headline makes less sense as it drags on. I will explore annealing rules that work well for this model.
