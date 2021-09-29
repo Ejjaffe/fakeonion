@@ -25,4 +25,7 @@ conda activate fakeonion
 streamlit run app.py
 ```
 
-
+## What's left to do?
+ - [ ] Add code to fine-tune the distilGPT2 model, or add a download link for the fine-tuned models I've already created.
+ - [ ] Update the app to only use models that exist in the model repo
+ - [ ] Some tests to make sure everything is working
